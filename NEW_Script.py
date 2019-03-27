@@ -17,26 +17,29 @@ class Game (): #début du jeu
         self.player1=Player(1)
         self.player2=Player(2)
         self.move_number=0
+        self.players=[]
+        self.first_player=None
+        self.last_case=None
     
     def get_board(self): #crée le plateau
         return self.board 
         
     def get_current_player(self): #détermine le joueur qui doit jouer
         self.players=[self.player1,self.player2]
-        first_player=None
         if self.move_number==0:
             tirage_au_sort=[i for i in range (2)]
             if random.choice(tirage_au_sort) == 0 :
-                first_player=self.players[0]
-                return first_player
-            first_player=self.players[1]
-            return first_player
+                self.first_player=self.players[0]
+                return self.first_player
+            self.first_player=self.players[1]
+            return self.first_player
         else :
             if game.move_number%2 == 0 :
-                return first_player
+                return self.first_player
             else :
                 for i in [0,1] :
-                    if self.players[i].symbol != first_player.symbol:
+                    player =self.players[i]
+                    if player.get_symbol() != self.first_player.get_symbol() :
                         return self.players[i]
         
         
@@ -99,10 +102,11 @@ class Grid() : #La grille 3x3
                 return case
     
     def grid_is_full (self) : #teste si la grille est pleine
+        grid_position=self.get_grid_position()
         for i in range (1,4):
             for j in range (1,4) :
                 case_position = (i,j)
-                case = board.get_case(case_position)
+                case = board.get_case(grid_position,case_position)
                 if not case.case_is_full:
                     return False
         return True        
@@ -126,30 +130,34 @@ class Case (): #la case simple
 class Player() : 
     def __init__(self,symbol) :
         self.symbol=symbol
-        self.last_case=None
+        self.playable_grid=[]
     
     def play(self, grid_position, case_position):
         case = board.get_case(grid_position,case_position)
         case.owner = game.get_current_player().symbol #le symbol de la case devient le symbol du joueur
-        self.last_case=case_position #la dernière case jouée devient cette case
+        game.last_case=case_position #la dernière case jouée devient cette case
         game.move_number+=1
 
+    def get_symbol(self):
+        return self.symbol
     
     def get_playable_grid(self): 
         playable_grid=[]
-        grid = board.get_grid(self.last_case)
-        if game.move_number == 0 :  #premier coup
-            for i in range (1,10) :
-                for j in range (1,10) :
-                    playable_grid.append(i,j)
-                    return playable_grid #renvoie toutes les grilles  
-        elif grid.grid_is_full  :
+        if game.move_number == 0 :#premier coup
+            for i in range (1,4) :
+                for j in range (1,4) :
+                    playable_grid.append((i,j))
+            return playable_grid #renvoie toutes les grilles  
+        grid = board.get_grid(game.last_case)
+        if grid.grid_is_full()  :
+            print (1)
             for i in range (9):
                     if board.grids[i].grid_is_full == False :
                         playable_grid.append(board.grids[i].get_grid_position)
-                        return playable_grid
+            return playable_grid
         else :
-            playable_grid.append(self.last_case)
+            playable_grid.append(game.last_case)
+            print(playable_grid)
             return playable_grid #renvoie une liste de (a,b) qui correspondent aux grilles jouables 
         
     
@@ -260,17 +268,17 @@ if __name__ == "__main__":
     player = game.get_current_player() #joueur 1 avant de jouer (premier coup)
     
     player.play(grid_position = (1, 1), case_position = (2, 3)) # joueur 1 joue (premier coup)
+    
     if board.get_case((1,1),(2,3)).owner != 1:
-        print(board.get_case((1,1),(2,3)).owner)
         raise Exception("Erreur, on attendait un rond dans la case 2,3 de la grille 1,1")
         
     player = game.get_current_player() # joueur 2 avant de jouer
     
     if player.symbol != 2:                                     #on vérifie le symbole
-        print(player.symbol)
         print(game.move_number)
         raise Exception("Erreur, on attendait le joueur Croix")
-    if player.get_playable_grid() != [(2, 3)]:                            #la grille de jeu
+    print(player.get_playable_grid())
+    if not (2,3) in player.get_playable_grid():                            #la grille de jeu
         raise Exception("Erreur, on attendait comme grille jouable la grille 2,3")	
             
     player.play(grid_position=(2,3), case_position = (1,3))  #le joueur joue
