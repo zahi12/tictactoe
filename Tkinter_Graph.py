@@ -52,8 +52,8 @@ class Tkinter_Graph():  #IHM
             self.cadre=tkinter.Frame(self.fenetre)
             self.cadre.grid(row=1,column=0)
             self.can=tkinter.Canvas(self.cadre, height=500,width=500,bg="white")
-            self.TexteC=tkinter.Text(self.fenetre,height=25,width=25)
-            self.can.bind("<Button-1>",self.playevent)
+            self.TexteC=tkinter.Text(self.fenetre,height=25,width=33)
+            self.can.bind("<Button-1>",self.play_event)
             
             self.titel=tkinter.Label(self.fenetre, text="Tic Tac Toe", fg="red")
             
@@ -65,25 +65,60 @@ class Tkinter_Graph():  #IHM
             self.game.start()
             self.board=self.game.get_board()
             
+            self.first_move()
             
-            
-            
-    def playevent(self,event):
-       self.grid_position=self.get_grid_position(event)
-       self.case_position=self.get_case_position(event)
-       
-       print(self.game.move_number)
-       player = self.game.get_current_player()
-       print(self.game.move_number)
-       player.play(self.grid_position,self.case_position)
-       print(self.game.move_number)
+    def first_move(self):
+        self.TexteC.delete("0.0",tkinter.END)               # on efface l'écriture précédente
+        self.TexteC.insert(tkinter.END,"Vous pouvez jouer dans n'importe quelle grille."+"\n Le joueur "+str(self.game.first_player.symbol)+" commence."+"\n Bon jeu !")
 
-       if player.symbol==1:
-           self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="red",outline="blue")
-        
-       if player.symbol==2:
-           self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="blue",outline="blue")
-           
+
+    def play_event(self,event):
+        self.grid_position=self.get_grid_position(event)
+        self.case_position=self.get_case_position(event)
+        player = self.game.get_current_player()
+        playable_grid=player.get_playable_grid()
+        if not self.case_position==None :
+            print(player.symbol)
+            print(self.game.board.get_case(self.grid_position,self.case_position).owner)
+            if self.grid_position in playable_grid :
+                if self.game.board.get_case(self.grid_position,self.case_position).owner == None :
+                    player.play(self.grid_position,self.case_position)
+                    print(self.game.board.get_case(self.grid_position,self.case_position).owner)
+                    
+               
+                    if player.symbol==1:
+                        self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="red",outline="blue")
+                   
+                    if player.symbol==2:
+                        self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="blue",outline="blue")
+                       
+                    if player.win_game():
+                        self.fenetre_fin=tkinter.Tk()
+                        self.win = tkinter.Label(self.fenetre_fin, text= "Le joueur "+str(self.game.current_player.symbol)+" a gagné !!!")
+                        self.win.grid(row=0,column=5)
+                            
+                        self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
+                        self.bouton_fin.grid(row=5, column=0)
+                            
+                    if player.draw_game():
+                        self.fenetre_fin=tkinter.Tk()
+                        self.draw = tkinter.Label(self.fenetre_fin, text= "Egalité parfaite !!!")
+                        self.draw.grid(row=0,column=5)
+                        
+                        self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
+                        self.bouton_fin.grid(row=5, column=0)
+                    
+                    player = self.game.get_current_player()
+                    playable_grid=player.get_playable_grid()
+                    self.TexteC.delete("0.0",tkinter.END)               # on efface l'écriture précédente
+                    self.TexteC.insert(tkinter.END,"grilles jouables : "+str(playable_grid))
+                else:
+                    pass
+            else :
+                pass
+        else: 
+            pass
+
            
          
         
@@ -128,5 +163,11 @@ class Tkinter_Graph():  #IHM
         self.fenetre.quit()
         self.fenetre.destroy()
 
+    def end_all(self):
+        self.fenetre_fin.quit()      
+        self.fenetre_fin.destroy        
+        self.fenetre.quit()
+        self.fenetre.destroy()
+        
 IHM=Tkinter_Graph()
 IHM.fenetre.mainloop()

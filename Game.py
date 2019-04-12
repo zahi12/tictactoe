@@ -11,6 +11,7 @@ import random
 class Game (): #début du jeu
     def __init__(self):
         self.start()
+        self.first_player=self.who_starts()
     
     def start(self):   #crée les objets
         self.board = Board(game=self)
@@ -18,7 +19,6 @@ class Game (): #début du jeu
         self.player2=Player(game=self, symbol=2)
         self.move_number=0
         self.players=[self.player1,self.player2]
-        self.first_player=None
         self.current_player=None
         self.last_case=None
     
@@ -26,25 +26,23 @@ class Game (): #début du jeu
         return self.board 
         
     def get_current_player(self): #détermine le joueur qui doit jouer
-        if self.move_number==0:
-            tirage_au_sort=[0,1]
-            if random.choice(tirage_au_sort) == 0 :
-                self.first_player=self.players[0]
-                self.current_player=self.players[0]
-                return self.current_player
-            self.first_player=self.players[1]            
-            self.current_player=self.players[1]
+        if self.move_number%2 == 0 :
+            self.current_player=self.first_player
             return self.current_player
         else :
-            if self.move_number%2 == 0 :
-                self.current_player=self.first_player
-                return self.current_player
-            else :
-                for i in [0,1] :
-                    player =self.players[i]
-                    if player.symbol != self.first_player.symbol :
-                        self.current_player=self.players[i]
-                        return self.current_player
+            for i in [0,1] :
+                player =self.players[i]
+                if player.symbol != self.first_player.symbol :
+                    self.current_player=self.players[i]
+                    return self.current_player
+        
+    def who_starts(self):
+        tirage_au_sort=[0,1]
+        if random.choice(tirage_au_sort) == 0 :
+            self.first_player=self.players[0]
+            return self.first_player
+        self.first_player=self.players[1]            
+        return self.first_player
         
     def end_draw(self):
         draw() #affichage du résultat
@@ -155,11 +153,7 @@ class Player() :
             grid.owner = 0         
         if self.win_grid(grid_position): 
             grid=self.board.get_grid(grid_position)
-            grid.owner = self.game.current_player.symbol        
-        if self.draw_game():
-            self.game.draw_end()
-        if self.win_game():
-            self.game.end_win()         
+            grid.owner = self.game.current_player.symbol               
         
         self.game.move_number+=1
         
@@ -178,7 +172,7 @@ class Player() :
         if grid.grid_is_full()  :
             for i in range (9):
                     if self.board.grids[i].grid_is_full == False :
-                        playable_grid.append(self.board.grids[i].get_grid_position)
+                        playable_grid.append(self.board.grids[i].get_grid_position())
             return playable_grid
         else :
             playable_grid.append(self.game.last_case)
