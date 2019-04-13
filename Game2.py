@@ -160,8 +160,6 @@ class Player() :
                     playable_grid.append((i,j))
             return playable_grid #renvoie toutes les grilles 
         grid = self.board.get_grid(self.game.last_case)
-        print(grid.get_grid_position())
-        print(grid.grid_is_full())
         if grid.grid_is_full()  :
             for i in range (9):
                     if self.board.grids[i].grid_is_full() == False :
