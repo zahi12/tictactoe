@@ -4,9 +4,8 @@ Created on Wed Apr 10 09:45:03 2019
 
 @author: pierr
 """
-
 import tkinter
-from Game import Game        
+from Game1 import Game        
             
 class Tkinter_Graph():  #IHM
     #Notre IHM 
@@ -18,7 +17,7 @@ class Tkinter_Graph():  #IHM
         self.start_clic = 0
         
         # Création de nos widgets
-        self.welcome = tkinter.Label(self.fenetre, text="Vous allez jouer au Morpion version Expert ! (2 joueurs)")
+        self.welcome = tkinter.Label(self.fenetre, text="Vous allez jouer au Morpion version Expert ! (2 joueurs)", fg = "black" )
         self.welcome.grid(row=0,column=5)
         
         self.bouton_quitter = tkinter.Button(self.fenetre, text="Quitter", command=self.end)
@@ -76,51 +75,45 @@ class Tkinter_Graph():  #IHM
         self.grid_position=self.get_grid_position(event)
         self.case_position=self.get_case_position(event)
         player = self.game.get_current_player()
+        case=self.game.board.get_case(self.grid_position,self.case_position)
         playable_grid=player.get_playable_grid()
-        if not self.case_position==None :
-            print(player.symbol)
-            print(self.game.board.get_case(self.grid_position,self.case_position).owner)
-            if self.grid_position in playable_grid :
-                if self.game.board.get_case(self.grid_position,self.case_position).owner == None :
-                    player.play(self.grid_position,self.case_position)
-                    print(self.game.board.get_case(self.grid_position,self.case_position).owner)
-                    
-               
-                    if player.symbol==1:
-                        self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="red",outline="blue")
-                   
-                    if player.symbol==2:
-                        self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="blue",outline="blue")
-                       
-                    if player.win_game():
-                        self.fenetre_fin=tkinter.Tk()
-                        self.win = tkinter.Label(self.fenetre_fin, text= "Le joueur "+str(self.game.current_player.symbol)+" a gagné !!!")
-                        self.win.grid(row=0,column=5)
-                            
-                        self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
-                        self.bouton_fin.grid(row=5, column=0)
-                            
-                    if player.draw_game():
-                        self.fenetre_fin=tkinter.Tk()
-                        self.draw = tkinter.Label(self.fenetre_fin, text= "Egalité parfaite !!!")
-                        self.draw.grid(row=0,column=5)
+        
+        if (not self.case_position==None) and (self.grid_position in playable_grid) and (case.owner == None) : #si on ne clique pas sur les bords, que la grille est jouable et que la case n'est pas jouée
                         
-                        self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
-                        self.bouton_fin.grid(row=5, column=0)
+            player.play(self.grid_position,self.case_position)                        
+               
+            if player.symbol==1:
+                self.can.create_oval(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y,fill="red",outline="blue")
+                   
+            if player.symbol==2:
+                self.can.create_line(self.debut_case_x,self.debut_case_y,self.fin_case_x,self.fin_case_y, fill = "blue", width=3)
+                self.can.create_line(self.debut_case_x,self.fin_case_y,self.fin_case_x,self.debut_case_y, fill = "blue", width=3)
+
+                       
+            if player.win_game():
+                self.fenetre_fin=tkinter.Tk()
+                self.win = tkinter.Label(self.fenetre_fin, text= "Le joueur "+str(self.game.current_player.symbol)+" a gagné !!!")
+                self.win.grid(row=0,column=5)
+                            
+                self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
+                self.bouton_fin.grid(row=5, column=0)
+                            
+            if player.draw_game():
+                self.fenetre_fin=tkinter.Tk()
+                self.draw = tkinter.Label(self.fenetre_fin, text= "Egalité parfaite !!!")
+                self.draw.grid(row=0,column=5)
+                        
+                self.bouton_fin = tkinter.Button(self.fenetre_fin, text="Terminé", command=self.end_all)
+                self.bouton_fin.grid(row=5, column=0)
                     
-                    player = self.game.get_current_player()
-                    playable_grid=player.get_playable_grid()
-                    self.TexteC.delete("0.0",tkinter.END)               # on efface l'écriture précédente
-                    self.TexteC.insert(tkinter.END,"grilles jouables : "+str(playable_grid))
-                else:
-                    pass
-            else :
-                pass
+            player = self.game.get_current_player()
+            playable_grid=player.get_playable_grid()
+            self.TexteC.delete("0.0",tkinter.END)               # on efface l'écriture précédente
+            self.TexteC.insert(tkinter.END,"grilles jouables : "+str(playable_grid))                
+        
         else: 
             pass
 
-           
-         
         
         
     def grille (self):
@@ -165,8 +158,8 @@ class Tkinter_Graph():  #IHM
 
     def end_all(self):
         self.fenetre_fin.quit()      
-        self.fenetre_fin.destroy        
         self.fenetre.quit()
+        self.fenetre_fin.destroy()
         self.fenetre.destroy()
         
 IHM=Tkinter_Graph()
