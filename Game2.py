@@ -151,10 +151,6 @@ class Player() :
             grid.owner = self.game.current_player.symbol               
         
         self.game.move_number+=1
-        
-
-    def get_symbol(self):
-        return self.symbol
     
     def get_playable_grid(self): 
         playable_grid=[]
